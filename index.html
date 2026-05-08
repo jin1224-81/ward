@@ -117,7 +117,7 @@ select.fi{cursor:pointer;background-color:var(--s2)}
   <div class="logo">WARD <small>スタイリスト</small></div>
   <div style="display:flex;gap:4px">
     <button class="hib" onclick="doSearch()">🔍</button>
-    <button class="hib" onclick="nav('settings')">⚙️</button>
+    <button class="hib" onclick="openSettings()">⚙️</button>
   </div>
 </header>
 <div id="pages">
@@ -181,36 +181,10 @@ select.fi{cursor:pointer;background-color:var(--s2)}
       <div id="resultArea" style="display:flex;flex-direction:column;gap:10px"></div>
     </div>
   </div>
-  <div class="pg" id="pg-settings">
-    <div class="sh"><h2>Settings</h2></div>
-    <div class="slist">
-      <div class="sblk">
-        <div class="stit">📤 エクスポート</div>
-        <p>服のデータをJSONとして保存します。機種変更時の引き継ぎに。</p>
-        <div style="font-size:11px;color:var(--td);margin-bottom:8px" id="expStats"></div>
-        <button class="btn-m" onclick="doExport()">バックアップを保存</button>
-      </div>
-      <div class="sblk">
-        <div class="stit">📥 インポート</div>
-        <p>バックアップファイルを読み込みます。既存データと統合されます。</p>
-        <div style="position:relative">
-          <button class="btn-s" style="width:100%;text-align:center" onclick="document.getElementById('impF').click()">ファイルを選択</button>
-          <input type="file" id="impF" accept=".json" style="display:none" onchange="doImport(event)">
-        </div>
-      </div>
-      <div class="sblk">
-        <div class="stit" style="color:var(--red)">⚠️ データ削除</div>
-        <p>すべてのデータを完全に削除します。元に戻せません。</p>
-        <button class="btn-s" style="width:100%;border-color:var(--red);color:var(--red)" onclick="clearAll()">すべて削除</button>
-      </div>
-      <div style="text-align:center;font-size:10px;color:var(--td);padding:4px 0 12px">WARD v4.1 — AIなし・ルールベース版</div>
-    </div>
-  </div>
 </div>
 <nav class="bnav">
   <button class="ni on" onclick="nav('closet',this)"><span class="ico">👗</span><span>クローゼット</span></button>
   <button class="ni" onclick="nav('coord',this)"><span class="ico">✨</span><span>コーデ提案</span></button>
-  <button class="ni" onclick="nav('settings',this)"><span class="ico">⚙️</span><span>設定</span></button>
 </nav>
 </div>
 <button class="fab" id="fab" onclick="openAdd()">＋</button>
@@ -338,6 +312,32 @@ select.fi{cursor:pointer;background-color:var(--s2)}
     </div>
   </div>
 </div>
+<div class="sheet" id="settingsSheet">
+  <div class="shdl"></div>
+  <div class="shhd"><h3>設定</h3><button class="hib" onclick="closeSheets()">✕</button></div>
+  <div class="shbd">
+    <div class="sblk">
+      <div class="stit">📤 エクスポート</div>
+      <p>服のデータをJSONとして保存します。機種変更時の引き継ぎに。</p>
+      <div style="font-size:11px;color:var(--td);margin-bottom:8px" id="expStats"></div>
+      <button class="btn-m" onclick="doExport()">バックアップを保存</button>
+    </div>
+    <div class="sblk">
+      <div class="stit">📥 インポート</div>
+      <p>バックアップファイルを読み込みます。既存データと統合されます。</p>
+      <div style="position:relative">
+        <button class="btn-s" style="width:100%;text-align:center" onclick="document.getElementById('impF').click()">ファイルを選択</button>
+        <input type="file" id="impF" accept=".json" style="display:none" onchange="doImport(event)">
+      </div>
+    </div>
+    <div class="sblk">
+      <div class="stit" style="color:var(--red)">⚠️ データ削除</div>
+      <p>すべてのデータを完全に削除します。元に戻せません。</p>
+      <button class="btn-s" style="width:100%;border-color:var(--red);color:var(--red)" onclick="clearAll()">すべて削除</button>
+    </div>
+    <div style="text-align:center;font-size:10px;color:var(--td);padding:4px 0 4px">WARD v4.1 — AIなし・ルールベース版</div>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 <script>
 const CAT={tops:'トップス',bottoms:'ボトムス',outer:'アウター',shoes:'シューズ',accessories:'小物',others:'その他'};
@@ -358,7 +358,11 @@ function nav(id,btn){
   else document.querySelectorAll('.ni').forEach(b=>{if(b.getAttribute('onclick')?.includes("'"+id+"'"))b.classList.add('on');});
   document.getElementById('fab').style.display=id==='closet'?'flex':'none';
   if(id==='coord')renderCoordSel();
-  if(id==='settings')renderSettings();
+}
+function openSettings(){
+  const sz=new Blob([JSON.stringify(state)]).size;
+  document.getElementById('expStats').textContent='服 '+state.closet.length+'点 ／ 約 '+(sz/1024).toFixed(1)+' KB';
+  openSheet('settingsSheet');
 }
 function renderCloset(){
   const filtered=curFilt==='all'?state.closet:state.closet.filter(c=>c.category===curFilt);
