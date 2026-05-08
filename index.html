@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#f5f0e8">
+<title>WARD — スタイリスト</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f5f0e8;--s:#faf7f2;--s2:#ede8de;--bd:#d8d0c2;--t:#2c2520;--tm:#7a6e62;--td:#b0a698;--acc:#8b6b3d;--accl:rgba(139,107,61,.11);--accb:rgba(139,107,61,.3);--red:#b85c5c;--green:#4a7c5e;--nav:56px;--safe:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--t);font-family:'Noto Sans JP',sans-serif;font-weight:300;height:100%;overflow:hidden}
+#app{height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+.hdr{background:var(--s);border-bottom:1px solid var(--bd);padding:0 14px;height:50px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:'DM Serif Display',serif;font-size:1.4rem;color:var(--acc);letter-spacing:.1em}
+.logo small{font-family:'Noto Sans JP',sans-serif;font-size:.55rem;color:var(--tm);font-weight:300;margin-left:5px}
+.hib{background:none;border:none;color:var(--tm);font-size:1.2rem;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:50%}
+.hib:active{background:var(--s2)}
+#pages{flex:1;overflow:hidden;position:relative}
+.pg{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:calc(var(--nav) + var(--safe) + 8px);opacity:0;pointer-events:none;transform:translateY(6px);transition:opacity .18s,transform .18s}
+.pg.on{opacity:1;pointer-events:auto;transform:none}
+.bnav{height:calc(var(--nav) + var(--safe));padding-bottom:var(--safe);background:var(--s);border-top:1px solid var(--bd);display:flex;flex-shrink:0}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;color:var(--td);cursor:pointer;font-size:9px;letter-spacing:.04em;font-family:'Noto Sans JP',sans-serif;padding:0;transition:color .15s}
+.ni.on{color:var(--acc)}
+.ni .ico{font-size:1.3rem;line-height:1}
+.sh{padding:12px 14px 4px;display:flex;align-items:baseline;gap:8px}
+.sh h2{font-family:'DM Serif Display',serif;font-size:1.4rem;font-weight:400}
+.sh .cnt{font-size:11px;color:var(--acc)}
+.fscroll{display:flex;gap:6px;padding:6px 14px 4px;overflow-x:auto;scrollbar-width:none}
+.fscroll::-webkit-scrollbar{display:none}
+.chip{border:1px solid var(--bd);background:none;color:var(--tm);font-size:11px;padding:4px 11px;cursor:pointer;border-radius:20px;font-family:'Noto Sans JP',sans-serif;white-space:nowrap;transition:all .15s}
+.chip.on{border-color:var(--acc);color:var(--acc);background:var(--accl)}
+.cgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;padding:2px}
+.cc{aspect-ratio:3/4;position:relative;overflow:hidden;background:var(--s2);cursor:pointer}
+.cc img{width:100%;height:100%;object-fit:cover;display:block}
+.cc .ni2{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:2rem}
+.cc .lb{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(44,37,32,.8));padding:20px 6px 5px}
+.cc .lcat{font-size:8px;letter-spacing:.1em;color:#c4a882;text-transform:uppercase}
+.cc .lnm{font-size:11px;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sel-r{position:absolute;inset:0;border:2.5px solid var(--acc);display:none;pointer-events:none}
+.sel-c{position:absolute;top:5px;right:5px;width:20px;height:20px;background:var(--acc);border-radius:50%;display:none;align-items:center;justify-content:center;font-size:10px;color:#fff;font-weight:700}
+.cc.sel .sel-r{display:block}.cc.sel .sel-c{display:flex}
+.empty{padding:3rem 1rem;text-align:center;color:var(--tm);grid-column:1/-1}
+.empty .eico{font-size:2.5rem;display:block;margin-bottom:10px}
+.empty p{font-size:12px;line-height:1.8}
+.fab{position:fixed;bottom:calc(var(--nav) + var(--safe) + 12px);right:14px;width:50px;height:50px;background:var(--acc);border:none;border-radius:50%;color:#fff;font-size:1.4rem;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(139,107,61,.3);z-index:40;transition:transform .12s}
+.fab:active{transform:scale(.91)}
+.selbar{position:fixed;bottom:calc(var(--nav) + var(--safe));left:0;right:0;background:var(--acc);color:#fff;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;z-index:45;transform:translateY(100%);transition:transform .22s cubic-bezier(.34,1.56,.64,1)}
+.selbar.on{transform:none}
+.selbar span{font-size:12px;font-weight:500}
+.sbb-row{display:flex;gap:6px}
+.sbb{background:rgba(255,255,255,.22);border:none;color:#fff;font-size:11px;font-weight:500;padding:5px 11px;cursor:pointer;border-radius:6px;font-family:'Noto Sans JP',sans-serif}
+.ov{position:fixed;inset:0;background:rgba(44,37,32,.5);z-index:100;opacity:0;pointer-events:none;transition:opacity .2s}
+.ov.on{opacity:1;pointer-events:auto}
+.sheet{position:fixed;bottom:0;left:0;right:0;background:var(--s);z-index:101;border-radius:18px 18px 0 0;max-height:92dvh;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .28s cubic-bezier(.32,.72,0,1);padding-bottom:var(--safe)}
+.sheet.on{transform:none}
+.shdl{width:32px;height:3px;background:var(--bd);border-radius:2px;margin:.7rem auto .3rem;flex-shrink:0}
+.shhd{padding:8px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd);flex-shrink:0}
+.shhd h3{font-family:'DM Serif Display',serif;font-size:1.1rem;font-weight:400}
+.shbd{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 14px;flex:1;display:flex;flex-direction:column;gap:10px}
+.lbs{font-size:10px;letter-spacing:.1em;color:var(--tm);text-transform:uppercase;margin-bottom:3px;display:block}
+.fi{width:100%;background:var(--s2);border:1px solid var(--bd);color:var(--t);font-family:'Noto Sans JP',sans-serif;font-size:14px;font-weight:300;padding:9px 11px;outline:none;border-radius:8px;-webkit-appearance:none;transition:border-color .15s}
+.fi:focus{border-color:var(--acc)}
+select.fi{cursor:pointer;background-color:var(--s2)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.fg{display:flex;flex-direction:column;gap:3px}
+.btn-m{background:var(--acc);color:#fff;border:none;font-family:'Noto Sans JP',sans-serif;font-size:13px;font-weight:500;padding:11px;cursor:pointer;border-radius:8px;width:100%;letter-spacing:.06em}
+.btn-m:active{opacity:.82}
+.btn-s{background:none;border:1px solid var(--bd);color:var(--tm);font-family:'Noto Sans JP',sans-serif;font-size:12px;padding:9px 14px;cursor:pointer;border-radius:8px}
+.btn-s:active{border-color:var(--acc);color:var(--acc)}
+.upbox{border:1.5px dashed var(--bd);padding:1.2rem;text-align:center;position:relative;cursor:pointer;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-height:90px}
+.upbox input{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer}
+.tog-row{display:flex;flex-wrap:wrap;gap:5px}
+.tog{border:1px solid var(--bd);background:none;color:var(--tm);font-size:11px;padding:5px 11px;cursor:pointer;border-radius:20px;font-family:'Noto Sans JP',sans-serif;transition:all .15s}
+.tog.on{border-color:var(--acc);color:var(--acc);background:var(--accl)}
+.coord-wrap{padding:0 14px;display:flex;flex-direction:column;gap:14px}
+.sec-t{font-size:10px;letter-spacing:.1em;color:var(--acc);text-transform:uppercase;margin-bottom:7px}
+.si-row{display:flex;gap:6px;overflow-x:auto;padding-bottom:3px;scrollbar-width:none}
+.si-row::-webkit-scrollbar{display:none}
+.sth{width:52px;height:52px;flex-shrink:0;overflow:hidden;background:var(--s2);border:1px solid var(--bd);border-radius:8px}
+.sth img{width:100%;height:100%;object-fit:cover}
+.sth .sthm{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1.3rem}
+.rcard{background:var(--s);border:1px solid var(--bd);padding:13px;border-radius:12px}
+.rcard.best{border:2px solid var(--acc)}
+.rcard .rank{font-size:9px;letter-spacing:.1em;color:var(--acc);text-transform:uppercase;display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.rcard .sbar{flex:1;height:3px;background:var(--bd);border-radius:2px;position:relative;overflow:hidden}
+.rcard .sfill{position:absolute;left:0;top:0;height:3px;background:var(--acc);border-radius:2px}
+.rcard .spct{font-size:10px;color:var(--tm);min-width:24px;text-align:right}
+.rcard .citems{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}
+.rcard .citem{display:flex;align-items:center;gap:5px;background:var(--s2);border:1px solid var(--bd);border-radius:6px;padding:4px 7px}
+.rcard .cith{width:28px;height:28px;object-fit:cover;border-radius:4px;flex-shrink:0}
+.rcard .cithe{width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.rcard .cinm{font-size:11px;color:var(--t);max-width:72px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rcard .reason{font-size:11px;color:var(--tm);line-height:1.8;margin-bottom:8px}
+.rcard .ctags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px}
+.rcard .ctag{font-size:9px;color:var(--acc);border:1px solid var(--accb);padding:2px 7px;border-radius:20px}
+.ask-btn{background:none;border:1px solid var(--bd);color:var(--tm);font-size:11px;padding:8px 11px;cursor:pointer;border-radius:8px;font-family:'Noto Sans JP',sans-serif;width:100%;text-align:center}
+.ask-btn:active{border-color:var(--acc);color:var(--acc)}
+.det-img{width:100%;max-height:220px;object-fit:contain;background:var(--s2);display:block;border-radius:8px}
+.det-no{width:100%;height:160px;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:3.5rem;border-radius:8px}
+.tpill{font-size:10px;color:var(--acc);border:1px solid var(--accb);padding:2px 7px;border-radius:20px;display:inline-block}
+.slist{padding:0 14px;display:flex;flex-direction:column;gap:10px}
+.sblk{border:1px solid var(--bd);padding:13px;border-radius:12px;background:var(--s)}
+.stit{font-size:10px;letter-spacing:.1em;color:var(--acc);text-transform:uppercase;margin-bottom:7px}
+.sblk p{font-size:12px;color:var(--tm);line-height:1.7;margin-bottom:8px}
+.toast{position:fixed;top:12px;left:50%;transform:translateX(-50%) translateY(-60px);background:var(--t);color:var(--s);padding:8px 16px;font-size:12px;z-index:200;border-radius:8px;transition:transform .25s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;pointer-events:none;max-width:90vw;overflow:hidden;text-overflow:ellipsis}
+.toast.on{transform:translateX(-50%) translateY(0)}
+.toast.ok{background:var(--green)}.toast.err{background:var(--red)}
+@keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.fu{animation:fu .22s ease both}
+::-webkit-scrollbar{display:none}
+</style>
+</head>
+<body>
+<div id="app">
+<header class="hdr">
+  <div class="logo">WARD <small>スタイリスト</small></div>
+  <div style="display:flex;gap:4px">
+    <button class="hib" onclick="doSearch()">🔍</button>
+    <button class="hib" onclick="nav('settings')">⚙️</button>
+  </div>
+</header>
+<div id="pages">
+  <div class="pg on" id="pg-closet">
+    <div class="sh"><h2>Closet</h2><span class="cnt" id="cCnt">0 items</span></div>
+    <div class="fscroll">
+      <button class="chip on" onclick="filt('all',this)">すべて</button>
+      <button class="chip" onclick="filt('tops',this)">トップス</button>
+      <button class="chip" onclick="filt('bottoms',this)">ボトムス</button>
+      <button class="chip" onclick="filt('outer',this)">アウター</button>
+      <button class="chip" onclick="filt('shoes',this)">シューズ</button>
+      <button class="chip" onclick="filt('accessories',this)">小物</button>
+      <button class="chip" onclick="filt('others',this)">その他</button>
+    </div>
+    <div class="cgrid" id="cgrid"></div>
+  </div>
+  <div class="pg" id="pg-coord">
+    <div class="sh"><h2>コーデ提案</h2></div>
+    <div class="coord-wrap">
+      <div>
+        <div class="sec-t">👗 使用する服</div>
+        <div style="font-size:11px;color:var(--td);margin-bottom:6px">服を長押しで選択、または全服から提案</div>
+        <div class="si-row" id="coordSel"><span style="font-size:11px;color:var(--td);padding:4px 0">（未選択 = 全服から提案）</span></div>
+      </div>
+      <div>
+        <div class="sec-t">📍 シーン</div>
+        <div class="tog-row" id="togScene">
+          <button class="tog on" data-v="">指定なし</button>
+          <button class="tog" data-v="casual">カジュアル</button>
+          <button class="tog" data-v="work">仕事・オフィス</button>
+          <button class="tog" data-v="date">デート</button>
+          <button class="tog" data-v="party">パーティー</button>
+          <button class="tog" data-v="outdoor">アウトドア</button>
+          <button class="tog" data-v="formal">フォーマル</button>
+        </div>
+      </div>
+      <div>
+        <div class="sec-t">🌤 天気・季節</div>
+        <div class="tog-row" id="togWeather">
+          <button class="tog on" data-v="">指定なし</button>
+          <button class="tog" data-v="spring">春・暖かい</button>
+          <button class="tog" data-v="summer">夏・暑い</button>
+          <button class="tog" data-v="autumn">秋・肌寒い</button>
+          <button class="tog" data-v="winter">冬・寒い</button>
+          <button class="tog" data-v="rainy">雨の日</button>
+        </div>
+      </div>
+      <div>
+        <div class="sec-t">✨ 好みのスタイル</div>
+        <div class="tog-row" id="togStyle">
+          <button class="tog on" data-v="">こだわりなし</button>
+          <button class="tog" data-v="minimal">ミニマル</button>
+          <button class="tog" data-v="feminine">フェミニン</button>
+          <button class="tog" data-v="casual">カジュアル</button>
+          <button class="tog" data-v="classic">クラシック</button>
+          <button class="tog" data-v="street">ストリート</button>
+          <button class="tog" data-v="natural">ナチュラル</button>
+        </div>
+      </div>
+      <button class="btn-m" onclick="suggest()">✨ コーデを提案する</button>
+      <div id="resultArea" style="display:flex;flex-direction:column;gap:10px"></div>
+    </div>
+  </div>
+  <div class="pg" id="pg-settings">
+    <div class="sh"><h2>Settings</h2></div>
+    <div class="slist">
+      <div class="sblk">
+        <div class="stit">📤 エクスポート</div>
+        <p>服のデータをJSONとして保存します。機種変更時の引き継ぎに。</p>
+        <div style="font-size:11px;color:var(--td);margin-bottom:8px" id="expStats"></div>
+        <button class="btn-m" onclick="doExport()">バックアップを保存</button>
+      </div>
+      <div class="sblk">
+        <div class="stit">📥 インポート</div>
+        <p>バックアップファイルを読み込みます。既存データと統合されます。</p>
+        <div style="position:relative">
+          <button class="btn-s" style="width:100%;text-align:center" onclick="document.getElementById('impF').click()">ファイルを選択</button>
+          <input type="file" id="impF" accept=".json" style="display:none" onchange="doImport(event)">
+        </div>
+      </div>
+      <div class="sblk">
+        <div class="stit" style="color:var(--red)">⚠️ データ削除</div>
+        <p>すべてのデータを完全に削除します。元に戻せません。</p>
+        <button class="btn-s" style="width:100%;border-color:var(--red);color:var(--red)" onclick="clearAll()">すべて削除</button>
+      </div>
+      <div style="text-align:center;font-size:10px;color:var(--td);padding:4px 0 12px">WARD v4.1 — AIなし・ルールベース版</div>
+    </div>
+  </div>
+</div>
+<nav class="bnav">
+  <button class="ni on" onclick="nav('closet',this)"><span class="ico">👗</span><span>クローゼット</span></button>
+  <button class="ni" onclick="nav('coord',this)"><span class="ico">✨</span><span>コーデ提案</span></button>
+  <button class="ni" onclick="nav('settings',this)"><span class="ico">⚙️</span><span>設定</span></button>
+</nav>
+</div>
+<button class="fab" id="fab" onclick="openAdd()">＋</button>
+<div class="selbar" id="selbar">
+  <span id="selCnt">0点選択中</span>
+  <div class="sbb-row">
+    <button class="sbb" onclick="goCoord()">コーデ提案へ →</button>
+    <button class="sbb" style="background:rgba(255,255,255,.15)" onclick="clearSel()">解除</button>
+  </div>
+</div>
+<div class="ov" id="ov" onclick="closeSheets()"></div>
+<div class="sheet" id="addSheet">
+  <div class="shdl"></div>
+  <div class="shhd"><h3 id="addT">服を追加する</h3><button class="hib" onclick="closeSheets()">✕</button></div>
+  <div class="shbd">
+    <div class="fg">
+      <label class="lbs">写真</label>
+      <div class="upbox">
+        <input type="file" accept="image/*" id="addF" onchange="prevImg(event)">
+        <div id="upHint"><div style="font-size:1.8rem;margin-bottom:4px">📷</div><div style="font-size:12px;color:var(--tm)">タップして写真を選択</div></div>
+        <img id="addPrev" style="display:none;width:100%;max-height:160px;object-fit:contain;border-radius:8px">
+      </div>
+    </div>
+    <div class="fg"><label class="lbs">アイテム名 *</label><input class="fi" type="text" id="aN" placeholder="例：白リネンシャツ、ネイビーチノパン"></div>
+    <div class="fg">
+      <label class="lbs">カテゴリー *</label>
+      <select class="fi" id="aCat">
+        <option value="tops">トップス（上着）</option>
+        <option value="bottoms">ボトムス（下）</option>
+        <option value="outer">アウター</option>
+        <option value="shoes">シューズ</option>
+        <option value="accessories">小物・アクセサリー</option>
+        <option value="others">その他</option>
+      </select>
+    </div>
+    <div class="g2">
+      <div class="fg">
+        <label class="lbs">メインカラー</label>
+        <select class="fi" id="aColor">
+          <option value="white">白・オフホワイト</option>
+          <option value="black">黒</option>
+          <option value="gray">グレー</option>
+          <option value="navy">ネイビー</option>
+          <option value="blue">ブルー</option>
+          <option value="beige">ベージュ</option>
+          <option value="brown">ブラウン</option>
+          <option value="green">グリーン</option>
+          <option value="red">レッド</option>
+          <option value="pink">ピンク</option>
+          <option value="yellow">イエロー</option>
+          <option value="orange">オレンジ</option>
+          <option value="purple">パープル</option>
+          <option value="multi">マルチ・柄</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label class="lbs">袖丈・丈</label>
+        <select class="fi" id="aSleeve">
+          <option value="short">半袖・ショート</option>
+          <option value="long">長袖・ロング</option>
+          <option value="none">なし</option>
+        </select>
+      </div>
+    </div>
+    <div class="fg">
+      <label class="lbs">素材</label>
+      <select class="fi" id="aMat">
+        <option value="cotton">コットン・リネン</option>
+        <option value="knit">ニット・ウール</option>
+        <option value="denim">デニム</option>
+        <option value="leather">レザー・合皮</option>
+        <option value="nylon">ナイロン・ポリエステル</option>
+        <option value="silk">シルク・サテン</option>
+        <option value="other">その他</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label class="lbs">シーン適性（複数可）</label>
+      <div class="tog-row" id="aScene">
+        <button class="tog" data-v="casual" onclick="this.classList.toggle('on')">カジュアル</button>
+        <button class="tog" data-v="work" onclick="this.classList.toggle('on')">仕事</button>
+        <button class="tog" data-v="date" onclick="this.classList.toggle('on')">デート</button>
+        <button class="tog" data-v="party" onclick="this.classList.toggle('on')">パーティー</button>
+        <button class="tog" data-v="outdoor" onclick="this.classList.toggle('on')">アウトドア</button>
+        <button class="tog" data-v="formal" onclick="this.classList.toggle('on')">フォーマル</button>
+      </div>
+    </div>
+    <div class="fg">
+      <label class="lbs">季節（複数可）</label>
+      <div class="tog-row" id="aSeason">
+        <button class="tog" data-v="spring" onclick="this.classList.toggle('on')">春</button>
+        <button class="tog" data-v="summer" onclick="this.classList.toggle('on')">夏</button>
+        <button class="tog" data-v="autumn" onclick="this.classList.toggle('on')">秋</button>
+        <button class="tog" data-v="winter" onclick="this.classList.toggle('on')">冬</button>
+        <button class="tog" data-v="rainy" onclick="this.classList.toggle('on')">雨の日</button>
+      </div>
+    </div>
+    <div class="fg">
+      <label class="lbs">スタイル（複数可）</label>
+      <div class="tog-row" id="aStyle">
+        <button class="tog" data-v="minimal" onclick="this.classList.toggle('on')">ミニマル</button>
+        <button class="tog" data-v="feminine" onclick="this.classList.toggle('on')">フェミニン</button>
+        <button class="tog" data-v="casual" onclick="this.classList.toggle('on')">カジュアル</button>
+        <button class="tog" data-v="classic" onclick="this.classList.toggle('on')">クラシック</button>
+        <button class="tog" data-v="street" onclick="this.classList.toggle('on')">ストリート</button>
+        <button class="tog" data-v="natural" onclick="this.classList.toggle('on')">ナチュラル</button>
+      </div>
+    </div>
+    <div class="fg"><label class="lbs">メモ（任意）</label><input class="fi" type="text" id="aNote" placeholder="購入場所、お気に入りポイントなど"></div>
+    <div style="display:flex;gap:6px;padding-bottom:4px">
+      <button class="btn-m" id="aSaveB" onclick="saveItem()">保存する</button>
+      <button class="btn-s" onclick="closeSheets()">キャンセル</button>
+    </div>
+  </div>
+</div>
+<div class="sheet" id="detSheet">
+  <div class="shdl"></div>
+  <div class="shhd"><h3 id="detT">詳細</h3><button class="hib" onclick="closeSheets()">✕</button></div>
+  <div class="shbd" style="padding:0;gap:0">
+    <div id="detImg" style="padding:10px 14px 0"></div>
+    <div style="padding:12px 14px;display:flex;flex-direction:column;gap:8px"><div id="detMeta"></div><div id="detTags"></div></div>
+    <div style="display:flex;gap:6px;padding:0 14px 12px">
+      <button class="btn-s" style="flex:1" onclick="editItem()">✏️ 編集</button>
+      <button class="btn-s" style="flex:1;border-color:var(--red);color:var(--red)" onclick="delItem()">🗑 削除</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const CAT={tops:'トップス',bottoms:'ボトムス',outer:'アウター',shoes:'シューズ',accessories:'小物',others:'その他'};
+const ICO={tops:'👕',bottoms:'👖',outer:'🧥',shoes:'👟',accessories:'👜',others:'🎽'};
+const CNAME={white:'白',black:'黒',gray:'グレー',navy:'ネイビー',blue:'ブルー',beige:'ベージュ',brown:'ブラウン',green:'グリーン',red:'レッド',pink:'ピンク',yellow:'イエロー',orange:'オレンジ',purple:'パープル',multi:'マルチ柄'};
+const MNAME={cotton:'コットン',knit:'ニット/ウール',denim:'デニム',leather:'レザー',nylon:'ナイロン',silk:'シルク',other:'その他'};
+const SLNAME={short:'半袖',long:'長袖',none:'―'};
+const SKEY='ward_v41';
+let state={closet:[]},selIds=new Set(),curFilt='all',editId=null,addImg=null,curDetId=null;
+function loadState(){try{const d=localStorage.getItem(SKEY);if(d)state={...state,...JSON.parse(d)};}catch(e){}}
+function saveState(){try{localStorage.setItem(SKEY,JSON.stringify(state));}catch(e){}}
+function toast(msg,type=''){const el=document.getElementById('toast');el.textContent=msg;el.className='toast on '+type;clearTimeout(el._t);el._t=setTimeout(()=>el.className='toast',2500);}
+function nav(id,btn){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.ni').forEach(b=>b.classList.remove('on'));
+  document.getElementById('pg-'+id).classList.add('on');
+  if(btn)btn.classList.add('on');
+  else document.querySelectorAll('.ni').forEach(b=>{if(b.getAttribute('onclick')?.includes("'"+id+"'"))b.classList.add('on');});
+  document.getElementById('fab').style.display=id==='closet'?'flex':'none';
+  if(id==='coord')renderCoordSel();
+  if(id==='settings')renderSettings();
+}
+function renderCloset(){
+  const filtered=curFilt==='all'?state.closet:state.closet.filter(c=>c.category===curFilt);
+  document.getElementById('cCnt').textContent=state.closet.length+' items';
+  const grid=document.getElementById('cgrid');
+  if(!filtered.length){grid.innerHTML='<div class="empty"><span class="eico">👗</span><p>'+(curFilt==='all'?'「＋」から服を登録しましょう':'このカテゴリーはまだ登録されていません')+'</p></div>';return;}
+  grid.innerHTML=filtered.map(it=>'<div class="cc '+(selIds.has(it.id)?'sel':'')+'" onclick="cardTap(\''+it.id+'\')">'+(it.img?'<img src="'+it.img+'" alt="'+it.name+'" loading="lazy">'+'<div class="lb"><div class="lcat">'+CAT[it.category]+'</div><div class="lnm">'+it.name+'</div></div>':'<div class="ni2">'+ICO[it.category]+'</div>'+'<div class="lb"><div class="lcat">'+CAT[it.category]+'</div><div class="lnm">'+it.name+'</div></div>')+'<div class="sel-r"></div><div class="sel-c">✓</div></div>').join('');
+}
+function filt(cat,btn){curFilt=cat;document.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));btn.classList.add('on');renderCloset();}
+function cardTap(id){selIds.size>0?toggleSel(id):openDet(id);}
+function toggleSel(id){selIds.has(id)?selIds.delete(id):selIds.add(id);renderCloset();updateSelBar();}
+function updateSelBar(){const n=selIds.size;document.getElementById('selbar').classList.toggle('on',n>0);document.getElementById('selCnt').textContent=n+'点選択中';}
+function clearSel(){selIds.clear();renderCloset();updateSelBar();}
+function goCoord(){nav('coord');renderCoordSel();}
+function openDet(id){
+  curDetId=id;const it=state.closet.find(c=>c.id===id);if(!it)return;
+  document.getElementById('detT').textContent=it.name;
+  document.getElementById('detImg').innerHTML=it.img?'<img class="det-img" src="'+it.img+'" alt="'+it.name+'">'+'':'<div class="det-no">'+ICO[it.category]+'</div>';
+  const rows=[['カテゴリー',CAT[it.category]],['色',CNAME[it.color]||it.color],['素材',MNAME[it.material]||it.material],['袖丈',SLNAME[it.sleeve]||it.sleeve],it.note?['メモ',it.note]:null].filter(Boolean);
+  document.getElementById('detMeta').innerHTML='<div style="display:flex;flex-direction:column;gap:4px;font-size:12px">'+rows.map(function(r){return'<div><span style="color:var(--tm)">'+r[0]+'　</span>'+r[1]+'</div>';}).join('')+'</div>';
+  const SL={casual:'カジュアル',work:'仕事',date:'デート',party:'パーティー',outdoor:'アウトドア',formal:'フォーマル'};
+  const WL={spring:'春',summer:'夏',autumn:'秋',winter:'冬',rainy:'雨の日'};
+  const tags=[].concat((it.scenes||[]).map(function(s){return SL[s]||s;}),(it.seasons||[]).map(function(s){return WL[s]||s;}),it.styles||[]).filter(Boolean);
+  document.getElementById('detTags').innerHTML=tags.length?'<div style="display:flex;flex-wrap:wrap;gap:4px">'+tags.map(function(t){return'<span class="tpill">'+t+'</span>';}).join('')+'</div>':'';
+  openSheet('detSheet');
+}
+function editItem(){closeSheets();setTimeout(function(){openAdd(curDetId);},180);}
+function delItem(){if(!confirm('この服を削除しますか？'))return;state.closet=state.closet.filter(function(c){return c.id!==curDetId;});selIds.delete(curDetId);saveState();renderCloset();updateSelBar();closeSheets();toast('削除しました','ok');}
+function getVals(gid){return Array.from(document.querySelectorAll('#'+gid+' .tog.on')).map(function(b){return b.dataset.v;});}
+function openAdd(eid){
+  editId=eid||null;addImg=null;
+  const isE=!!editId;
+  document.getElementById('addT').textContent=isE?'服を編集する':'服を追加する';
+  document.getElementById('aSaveB').textContent=isE?'更新する':'保存する';
+  document.querySelectorAll('#aScene .tog,#aSeason .tog,#aStyle .tog').forEach(function(b){b.classList.remove('on');});
+  if(isE){
+    const it=state.closet.find(function(c){return c.id===editId;});if(!it)return;
+    document.getElementById('aN').value=it.name;
+    document.getElementById('aCat').value=it.category;
+    document.getElementById('aColor').value=it.color||'white';
+    document.getElementById('aSleeve').value=it.sleeve||'none';
+    document.getElementById('aMat').value=it.material||'cotton';
+    document.getElementById('aNote').value=it.note||'';
+    (it.scenes||[]).forEach(function(v){var b=document.querySelector('#aScene .tog[data-v="'+v+'"]');if(b)b.classList.add('on');});
+    (it.seasons||[]).forEach(function(v){var b=document.querySelector('#aSeason .tog[data-v="'+v+'"]');if(b)b.classList.add('on');});
+    (it.styles||[]).forEach(function(v){var b=document.querySelector('#aStyle .tog[data-v="'+v+'"]');if(b)b.classList.add('on');});
+    if(it.img){addImg=it.img;document.getElementById('addPrev').src=it.img;document.getElementById('addPrev').style.display='block';document.getElementById('upHint').style.display='none';}
+    else resetUp();
+  }else{
+    ['aN','aNote'].forEach(function(id){document.getElementById(id).value='';});
+    document.getElementById('aCat').value='tops';document.getElementById('aColor').value='white';
+    document.getElementById('aSleeve').value='short';document.getElementById('aMat').value='cotton';
+    document.getElementById('addF').value='';resetUp();
+  }
+  openSheet('addSheet');
+}
+function resetUp(){document.getElementById('addPrev').style.display='none';document.getElementById('upHint').style.display='flex';}
+function prevImg(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(ev){addImg=ev.target.result;document.getElementById('addPrev').src=addImg;document.getElementById('addPrev').style.display='block';document.getElementById('upHint').style.display='none';};
+  reader.readAsDataURL(file);
+}
+function saveItem(){
+  const name=document.getElementById('aN').value.trim();
+  if(!name){toast('アイテム名を入力してください','err');return;}
+  const data={name:name,category:document.getElementById('aCat').value,color:document.getElementById('aColor').value,sleeve:document.getElementById('aSleeve').value,material:document.getElementById('aMat').value,note:document.getElementById('aNote').value.trim(),scenes:getVals('aScene'),seasons:getVals('aSeason'),styles:getVals('aStyle'),img:addImg};
+  if(editId){const i=state.closet.findIndex(function(c){return c.id===editId;});if(i!==-1)state.closet[i]=Object.assign({},state.closet[i],data);toast('更新しました','ok');}
+  else{data.id=Date.now().toString();data.createdAt=new Date().toISOString();state.closet.push(data);toast('追加しました！','ok');}
+  saveState();renderCloset();closeSheets();
+}
+function renderCoordSel(){
+  const el=document.getElementById('coordSel');
+  const items=state.closet.filter(function(c){return selIds.has(c.id);});
+  if(!items.length){el.innerHTML='<span style="font-size:11px;color:var(--td);padding:4px 0">（未選択 = 全服から提案）</span>';return;}
+  el.innerHTML=items.map(function(it){return'<div class="sth">'+(it.img?'<img src="'+it.img+'" alt="'+it.name+'">'+'':'<div class="sthm">'+ICO[it.category]+'</div>')+'</div>';}).join('');
+}
+['togScene','togWeather','togStyle'].forEach(function(gid){
+  document.querySelectorAll('#'+gid+' .tog').forEach(function(b){b.onclick=function(){document.querySelectorAll('#'+gid+' .tog').forEach(function(x){x.classList.remove('on');});this.classList.add('on');};});
+});
+function getScene(){return(document.querySelector('#togScene .tog.on')||{}).dataset&&document.querySelector('#togScene .tog.on').dataset.v||'';}
+function getWeather(){return(document.querySelector('#togWeather .tog.on')||{}).dataset&&document.querySelector('#togWeather .tog.on').dataset.v||'';}
+function getStyle(){return(document.querySelector('#togStyle .tog.on')||{}).dataset&&document.querySelector('#togStyle .tog.on').dataset.v||'';}
+const CC={white:{white:50,black:100,gray:90,navy:100,blue:90,beige:80,brown:80,green:80,red:80,pink:85,yellow:75,orange:70,purple:80,multi:70},black:{white:100,black:55,gray:90,navy:80,blue:75,beige:90,brown:80,green:75,red:80,pink:75,yellow:80,orange:75,purple:80,multi:70},gray:{white:90,black:90,gray:55,navy:85,blue:80,beige:80,brown:75,green:70,red:75,pink:70,yellow:65,orange:65,purple:75,multi:65},navy:{white:100,black:80,gray:85,navy:55,blue:65,beige:90,brown:80,green:75,red:70,pink:75,yellow:70,orange:65,purple:70,multi:65},blue:{white:90,black:75,gray:80,navy:65,blue:50,beige:80,brown:75,green:70,red:65,pink:70,yellow:65,orange:60,purple:65,multi:60},beige:{white:80,black:90,gray:80,navy:90,blue:80,beige:50,brown:90,green:75,red:70,pink:75,yellow:70,orange:70,purple:65,multi:65},brown:{white:80,black:80,gray:75,navy:80,blue:75,beige:90,brown:50,green:80,red:65,pink:65,yellow:60,orange:75,purple:60,multi:60},green:{white:80,black:75,gray:70,navy:75,blue:70,beige:75,brown:80,green:50,red:60,pink:60,yellow:70,orange:65,purple:60,multi:60},red:{white:80,black:80,gray:75,navy:70,blue:65,beige:70,brown:65,green:60,red:45,pink:55,yellow:60,orange:45,purple:65,multi:55},pink:{white:85,black:75,gray:70,navy:75,blue:70,beige:75,brown:65,green:60,red:55,pink:45,yellow:60,orange:55,purple:65,multi:55},yellow:{white:75,black:80,gray:65,navy:70,blue:65,beige:70,brown:60,green:70,red:60,pink:60,yellow:45,orange:65,purple:60,multi:55},orange:{white:70,black:75,gray:65,navy:65,blue:60,beige:70,brown:75,green:65,red:45,pink:55,yellow:65,orange:45,purple:55,multi:55},purple:{white:80,black:80,gray:75,navy:70,blue:65,beige:65,brown:60,green:60,red:65,pink:65,yellow:60,orange:55,purple:45,multi:55},multi:{white:70,black:70,gray:65,navy:65,blue:60,beige:65,brown:60,green:60,red:55,pink:55,yellow:55,orange:55,purple:55,multi:40}};
+const SMAT={spring:['cotton','nylon','other'],summer:['cotton','silk','nylon','other'],autumn:['cotton','knit','denim','leather','other'],winter:['knit','leather','denim','other'],rainy:['nylon','other']};
+const SMAP={casual:['casual'],work:['work','formal'],date:['date','casual','formal'],party:['party','formal','date'],outdoor:['outdoor','casual'],formal:['formal']};
+const WSL={summer:'short',winter:'long',rainy:'long'};
+function cs(a,b){var c1=(a&&a.color)||'black',c2=(b&&b.color)||'black';return(((CC[c1]&&CC[c1][c2])||60)+((CC[c2]&&CC[c2][c1])||60))/2;}
+function iscore(it,sc,wt,st){
+  var s=50;
+  if(sc&&it.scenes&&it.scenes.length){if(it.scenes.some(function(x){return(SMAP[sc]||[sc]).indexOf(x)>=0;}))s+=25;else s-=15;}
+  if(wt&&it.seasons&&it.seasons.length){
+    if(it.seasons.indexOf(wt)>=0)s+=20;else s-=10;
+    if(WSL[wt]&&it.sleeve&&it.sleeve!=='none'){if(it.sleeve===WSL[wt])s+=10;else s-=10;}
+    if(it.material&&(SMAT[wt]||[]).indexOf(it.material)<0)s-=8;
+  }
+  if(st&&it.styles&&it.styles.length){if(it.styles.indexOf(st)>=0)s+=15;else s-=5;}
+  return Math.max(0,Math.min(100,s));
+}
+function buildCoord(pool,sc,wt,st,exT,exB){
+  var tops=pool.filter(function(i){return i.category==='tops'&&!exT.has(i.id);});
+  var bots=pool.filter(function(i){return i.category==='bottoms'&&!exB.has(i.id);});
+  var outers=pool.filter(function(i){return i.category==='outer';});
+  var shoes=pool.filter(function(i){return i.category==='shoes';});
+  var accs=pool.filter(function(i){return i.category==='accessories';});
+  if(!tops.length||!bots.length)return null;
+  var best=null,bestScore=-1;
+  tops.forEach(function(top){bots.forEach(function(bot){
+    var score=cs(top,bot)+iscore(top,sc,wt,st)*.35+iscore(bot,sc,wt,st)*.35;
+    var picked=[top,bot],outer=null,shoe=null;
+    if(outers.length){var o=outers.reduce(function(a,b){return cs(top,b)+cs(bot,b)>cs(top,a)+cs(bot,a)?b:a;});if(cs(top,o)+cs(bot,o)>110){outer=o;score+=cs(top,o)*.1;picked.push(o);}}
+    if(shoes.length){var sh=shoes.reduce(function(a,b){return cs(top,b)+cs(bot,b)>cs(top,a)+cs(bot,a)?b:a;});shoe=sh;score+=cs(top,sh)*.08;picked.push(sh);}
+    if(accs.length){picked.push(accs.reduce(function(a,b){return cs(top,b)>cs(top,a)?b:a;}));score+=8;}
+    if(score>bestScore){bestScore=score;best={items:picked,score:Math.round(score),top:top,bot:bot,outer:outer,shoe:shoe};}
+  });});
+  return best;
+}
+function makeReason(coord,sc,wt,st){
+  var top=coord.top,bot=coord.bot,outer=coord.outer,shoe=coord.shoe;
+  var c1=CNAME[top&&top.color]||'',c2=CNAME[bot&&bot.color]||'';
+  var csc=cs(top,bot),r=[];
+  if(csc>=90)r.push(c1+'x'+c2+'は相性抜群の定番配色');
+  else if(csc>=75)r.push(c1+'と'+c2+'はバランスのよい配色');
+  else r.push(c1+'と'+c2+'でコントラストのある着こなし');
+  if(outer)r.push((CNAME[outer.color]||'')+'のアウターで全体をまとめています');
+  if(shoe)r.push((CNAME[shoe.color]||'')+'のシューズで足元を引き締めています');
+  var SL={casual:'カジュアルな場面',work:'仕事・オフィス',date:'デートシーン',party:'パーティー',outdoor:'アウトドア',formal:'フォーマルな場面'};
+  var WL={spring:'春の暖かい気候',summer:'夏の暑い季節',autumn:'秋の肌寒い気候',winter:'冬の寒い季節',rainy:'雨の日'};
+  if(sc)r.push((SL[sc]||sc)+'に適した組み合わせ');
+  if(wt)r.push((WL[wt]||wt)+'に合わせた選択');
+  return r.join('。')+'。';
+}
+function suggest(){
+  var sc=getScene(),wt=getWeather(),st=getStyle();
+  var pool=selIds.size>0?state.closet.filter(function(c){return selIds.has(c.id);}):state.closet;
+  if(pool.length<2){toast('トップスとボトムスを最低1点ずつ登録してください','err');return;}
+  var exT=new Set(),exB=new Set(),results=[];
+  for(var i=0;i<4;i++){
+    var c=buildCoord(pool,sc,wt,st,exT,exB);
+    if(!c||results.some(function(x){return x.top&&c.top&&x.top.id===c.top.id&&x.bot&&c.bot&&x.bot.id===c.bot.id;}))break;
+    results.push(c);if(c.top)exT.add(c.top.id);if(c.bot)exB.add(c.bot.id);
+  }
+  if(!results.length){toast('組み合わせを生成できませんでした。トップスとボトムスを登録してください','err');return;}
+  var LBL={casual:'カジュアル',work:'仕事',date:'デート',party:'パーティー',outdoor:'アウトドア',formal:'フォーマル',spring:'春',summer:'夏',autumn:'秋',winter:'冬',rainy:'雨の日',minimal:'ミニマル',feminine:'フェミニン',classic:'クラシック',street:'ストリート',natural:'ナチュラル'};
+  document.getElementById('resultArea').innerHTML=results.map(function(coord,i){
+    var pct=Math.min(100,Math.round((coord.score/160)*100));
+    var isBest=i===0;
+    var ih=coord.items.map(function(it){return'<div class="citem">'+(it.img?'<img class="cith" src="'+it.img+'" alt="'+it.name+'">'+'':'<div class="cithe">'+ICO[it.category]+'</div>')+'<span class="cinm">'+it.name+'</span></div>';}).join('');
+    var tags=[sc,wt,st].filter(Boolean).map(function(v){return LBL[v]||v;});
+    var desc=coord.items.map(function(it){return it.name;}).join(' + ');
+    var cond=[sc&&LBL[sc],wt&&LBL[wt],st&&LBL[st]].filter(Boolean).join('・');
+    return'<div class="rcard '+(isBest?'best':'')+' fu" style="animation-delay:'+(i*.08)+'s">'
+      +'<div class="rank"><span>'+(isBest?'⭐ おすすめ':'✦ 提案 '+(i+1))+'</span>'
+      +'<div class="sbar"><div class="sfill" style="width:'+pct+'%"></div></div>'
+      +'<span class="spct">'+pct+'</span></div>'
+      +'<div class="citems">'+ih+'</div>'
+      +'<div class="reason">'+makeReason(coord,sc,wt,st)+'</div>'
+      +(tags.length?'<div class="ctags">'+tags.map(function(t){return'<span class="ctag">'+t+'</span>';}).join('')+'</div>':'')
+      +'<button class="ask-btn" onclick="copyCoord(\''+desc.replace(/'/g,'&#39;')+'\',\''+cond+'\')">💬 Claudeにこのコーデを相談する</button>'
+      +'</div>';
+  }).join('');
+}
+function copyCoord(desc,cond){
+  var text='このコーデはどう思う？\n組み合わせ：'+desc+'\n条件：'+(cond||'指定なし')+'\n\nルールベースで提案されたコーデです。センス的にどうか、改善点があれば教えてください。';
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(function(){toast('コピーしました！このチャットに貼り付けて送ってください','ok');}).catch(function(){fallbackCopy(text);});
+  }else fallbackCopy(text);
+}
+function fallbackCopy(text){var ta=document.createElement('textarea');ta.value=text;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast('コピーしました！Claudeに貼り付けて送ってください','ok');}catch(e){prompt('以下をコピーしてClaudeに送ってください：',text);}document.body.removeChild(ta);}
+function openSheet(id){document.getElementById('ov').classList.add('on');document.getElementById(id).classList.add('on');}
+function closeSheets(){document.querySelectorAll('.sheet').forEach(function(s){s.classList.remove('on');});document.getElementById('ov').classList.remove('on');}
+function doSearch(){
+  var q=prompt('服を検索（名前・カテゴリー・色）');if(q===null)return;
+  if(!q.trim()){filt('all',document.querySelector('.chip'));return;}
+  var lq=q.toLowerCase();
+  var filtered=state.closet.filter(function(c){return c.name.toLowerCase().indexOf(lq)>=0||(CAT[c.category]||'').indexOf(lq)>=0||(CNAME[c.color]||'').indexOf(lq)>=0;});
+  document.getElementById('cCnt').textContent=filtered.length+' 件ヒット';
+  var grid=document.getElementById('cgrid');
+  if(!filtered.length){grid.innerHTML='<div class="empty"><span class="eico">🔍</span><p>「'+q+'」は見つかりませんでした</p></div>';return;}
+  grid.innerHTML=filtered.map(function(it){return'<div class="cc" onclick="openDet(\''+it.id+'\')">'+(it.img?'<img src="'+it.img+'" alt="'+it.name+'" loading="lazy">':'<div class="ni2">'+ICO[it.category]+'</div>')+'<div class="lb"><div class="lcat">'+CAT[it.category]+'</div><div class="lnm">'+it.name+'</div></div></div>';}).join('');
+}
+function renderSettings(){var sz=new Blob([JSON.stringify(state)]).size;document.getElementById('expStats').textContent='服 '+state.closet.length+'点 ／ 約 '+(sz/1024).toFixed(1)+' KB';}
+function doExport(){var blob=new Blob([JSON.stringify({version:'4.1',exportedAt:new Date().toISOString(),closet:state.closet})],{type:'application/json'});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download='ward_'+new Date().toISOString().slice(0,10).replace(/-/g,'')+'.json';a.click();URL.revokeObjectURL(url);toast('バックアップ保存完了（服 '+state.closet.length+'点）','ok');}
+function doImport(e){var file=e.target.files[0];if(!file)return;var reader=new FileReader();reader.onload=function(ev){try{var d=JSON.parse(ev.target.result);var ex=new Set(state.closet.map(function(c){return c.id;}));var ac=0;(d.closet||[]).forEach(function(it){if(!ex.has(it.id)){state.closet.push(it);ac++;}});saveState();renderCloset();toast('インポート完了：服 +'+ac+'点','ok');}catch(err){toast('ファイルの読み込みに失敗しました','err');}e.target.value='';};reader.readAsText(file);}
+function clearAll(){if(!confirm('すべてのデータを削除します。続行しますか？'))return;state.closet=[];saveState();renderCloset();toast('削除しました','ok');}
+var pt;
+document.getElementById('cgrid').addEventListener('pointerdown',function(e){var card=e.target.closest('.cc');if(!card)return;pt=setTimeout(function(){var m=card.getAttribute('onclick')&&card.getAttribute('onclick').match(/'([^']+)'/);if(m)toggleSel(m[1]);},500);});
+document.getElementById('cgrid').addEventListener('pointerup',function(){clearTimeout(pt);});
+document.getElementById('cgrid').addEventListener('pointermove',function(){clearTimeout(pt);});
+loadState();renderCloset();
+</script>
+</body>
+</html>
